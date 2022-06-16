@@ -1,7 +1,7 @@
 import React from "react";
 import * as BooksAPI from "./BooksAPI";
 import "./App.css";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Home from "./components/Home";
 import Search from "./components/Search";
@@ -15,8 +15,8 @@ class BooksApp extends React.Component {
     loadSearch: false,
   };
 
-  componentDidMount() {
-    BooksAPI.getAll().then((res) => {
+  async componentDidMount() {
+    await BooksAPI.getAll().then((res) => {
       this.setState({
         books: res,
       });
@@ -30,7 +30,7 @@ class BooksApp extends React.Component {
         books: res,
       });
     });
-    this.handleBooksSearch(this.state.search)
+    this.handleBooksSearch(this.state.search);
   };
 
   handleSearch = async (event) => {
@@ -47,21 +47,19 @@ class BooksApp extends React.Component {
         this.setState({
           booksFromSearch: res.map((booksSearch) => {
             this.state.books.forEach((book) => {
-              if (booksSearch.id === book.id) booksSearch.shelf = book.shelf
-            })
+              if (booksSearch.id === book.id) booksSearch.shelf = book.shelf;
+            });
             return booksSearch;
           }),
-          loadSearch: true
+          loadSearch: true,
         });
       } else {
         this.setState({
           booksFromSearch: `No books like: " ${this.state.search} "`,
-          loadSearch: false
-        })
+          loadSearch: false,
+        });
       }
     }); // then
-    console.log("Search");
-    console.log(this.state.booksFromSearch);
   };
 
   render() {
