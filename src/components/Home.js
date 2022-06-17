@@ -2,7 +2,7 @@ import React from "react";
 import Shelf from "./Shelf";
 import { Link } from "react-router-dom";
 
-const Home = ({ books, changeShelf }) => {
+const Home = ({ books, changeShelf, showSearchPage }) => {
   return (
     <div className="list-books">
       <div className="list-books-title">

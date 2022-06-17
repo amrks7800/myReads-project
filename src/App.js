@@ -2,88 +2,77 @@ import React from "react";
 import * as BooksAPI from "./BooksAPI";
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useState } from "react";
 
 import Home from "./components/Home";
 import Search from "./components/Search";
 
-class BooksApp extends React.Component {
-  state = {
-    showSearchPage: false,
-    books: [],
-    search: "",
-    booksFromSearch: [],
-    loadSearch: false,
-  };
+const App = () => {
+  const [books, setBooks] = useState([]);
+  const [search, setSearch] = useState("");
+  const [booksFromSearch, setBooksFromSearch] = useState([]);
+  const [loadSearch, setLoadSearch] = useState(false);
 
-  async componentDidMount() {
-    await BooksAPI.getAll().then((res) => {
-      this.setState({
-        books: res,
-      });
-    });
-  }
-
-  changeShelf = async (book, shelf) => {
+  const changeShelf = async (book, shelf) => {
     await BooksAPI.update(book, shelf);
     await BooksAPI.getAll().then((res) => {
-      this.setState({
-        books: res,
-      });
+      setBooks(res);
     });
-    this.handleBooksSearch(this.state.search);
+    handleBooksSearch(search);
   };
 
-  handleSearch = async (event) => {
-    await this.setState({
-      search: event.target.value,
-    });
-    console.log(this.state.search);
-    this.handleBooksSearch(this.state.search);
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+
+    handleBooksSearch(search);
   };
 
-  handleBooksSearch = async (search) => {
+  const handleBooksSearch = async (search) => {
     await BooksAPI.search(search).then((res) => {
       if (res && !res.error) {
-        this.setState({
-          booksFromSearch: res.map((booksSearch) => {
-            this.state.books.forEach((book) => {
+        setBooksFromSearch(
+          res.map((booksSearch) => {
+            books.forEach((book) => {
               if (booksSearch.id === book.id) booksSearch.shelf = book.shelf;
             });
             return booksSearch;
-          }),
-          loadSearch: true,
-        });
+          })
+        );
+        setLoadSearch(true);
       } else {
-        this.setState({
-          booksFromSearch: `No books like: " ${this.state.search} "`,
-          loadSearch: false,
-        });
+        setBooksFromSearch(`No books like: " ${search} "`);
+        setLoadSearch(true);
       }
     }); // then
   };
 
-  render() {
-    return (
-      <Router>
-        <div className="app">
-          <Switch>
-            <Route path="/search">
-              <Search
-                handleSearch={this.handleSearch}
-                search={this.state.search}
-                booksFromSearch={this.state.booksFromSearch}
-                changeShelf={this.changeShelf}
-                loadSearch={this.state.loadSearch}
-              />
-            </Route>
-            <Route path="/">
-              <Home books={this.state.books} changeShelf={this.changeShelf} />
-            </Route>
-          </Switch>
-        </div>
-      </Router>
-    );
-  }
-}
+  useEffect(() => {
+    BooksAPI.getAll().then((res) => {
+      setBooks(res);
+    });
+  }, []);
 
-export default BooksApp;
+  return (
+    <Router>
+      <div className="app">
+        <Switch>
+          <Route path="/search">
+            <Search
+              handleSearch={handleSearch}
+              search={search}
+              booksFromSearch={booksFromSearch}
+              changeShelf={changeShelf}
+              loadSearch={loadSearch}
+            />
+          </Route>
+          <Route path="/">
+            <Home books={books} changeShelf={changeShelf} />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  );
+};
+
+export default App;

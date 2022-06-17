@@ -4,7 +4,7 @@ for udacity react course
 
 # get the project up and ready.
 
-# NPM start
+# NPM install
 
 -This command to install project dependency in node_modules file
 
